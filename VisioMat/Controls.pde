@@ -161,6 +161,16 @@ void controllerChange(int channel, int number, int value) {
   {
     starFactor = map(value, 0, 127, 0., 200.);    // amount how much the lines being tilted (resulting in star pattern) 
   }
+  
+  if(number==52)
+  {
+    mandalaAlpha = map(value, 0, 127, 0., 255.);    // amount how much the lines being tilted (resulting in star pattern) 
+  }
+  
+  if(number==53)
+  {
+    patternAlpha = map(value, 0, 127, 0., 255.);    // amount how much the lines being tilted (resulting in star pattern) 
+  }
 
   if(number==54)
   {

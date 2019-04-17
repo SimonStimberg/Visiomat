@@ -1,6 +1,9 @@
 void graphicBuffer()
 { 
   graphics.beginDraw();
+  
+  bgcolor = calcGradient(gradColor[0], gradColor[1]);
+  
   graphics.background(bgcolor);
   graphics.stroke(strokeColor);
 
@@ -29,9 +32,35 @@ void graphicBuffer()
   if (dirt.available()) {
     dirt.read();
   }    
-  graphics.blend(dirt, 0, 0, 250, 1000, 0, 0, bufferWidth, bufferHeight, OVERLAY);
+  graphics.blend(dirt, 0, 0, 250, 1000, 0, 0, bufferWidth, bufferHeight, HARD_LIGHT);
   
   graphics.endDraw();   
+}
+
+
+int calcGradient(int c1, int c2)
+{
+  //if (c == gradColor[1])
+  //{
+  //  tgtcolor = gradColor[0];    
+  //}
+  //if (c == gradColor[0])
+  //{
+  //  tgtcolor = gradColor[1];    
+  //}
+  if(lerpCounter >= 1.0)
+  {
+    lerpCounter = -1.0;
+  }
+  
+  lerpCounter += 0.01;
+  return lerpColor(c1, c2, abs(lerpCounter));
+  //println(c);
+  //println("c1: " + gradColor[1]);
+  //println("c2: " + gradColor[1]+1);
+  //return c;
+  
+    
 }
 
 
@@ -39,6 +68,7 @@ void graphicBuffer()
 // generates some lines - which if shifted result in nice star patterns
 void stars()
 {
+  graphics.stroke(strokeColor, patternAlpha);
   // iterates over the height of the graphic buffer and draws some lines now and then
   // the thickness of the lines and distribution can be controlled via the parameters patternSpread and lineSpread
   for (float i = -bufferHeight; i < shift-patternSpread; i+=lineSpread)
@@ -59,8 +89,9 @@ void dots()
   // to compensate the distortion which happens due to the scaling of the texture - in other words to make the dots appear like perfect circles
   float antiDistort = (1.0 * graphics.width / graphics.height) * (cos(PI / numFacets) * radius) / (2 * sin(PI / numFacets) * radius);
   
-  graphics.strokeWeight(0);
-  graphics.fill(strokeColor);
+  //graphics.strokeWeight(0);
+  graphics.noStroke();
+  graphics.fill(strokeColor, patternAlpha);
   
   for (float i = -bufferHeight; i < shift-patternSpread; i+=20)
   {
@@ -107,10 +138,12 @@ void mandala()
 {
   graphics.strokeWeight(12);
   
-  
+  graphics.stroke(strokeColor, mandalaAlpha);
   // draws some ellipses first
   
-  graphics.fill(color1);
+  //color1 = calcGradient(colorScheme[0], colorScheme[1]);
+  
+  graphics.fill(color1, mandalaAlpha);
   //graphics.noFill();
   
 
@@ -125,7 +158,9 @@ void mandala()
   
   // then draws bezier curves in a different color - which results in those nice sunflower patterns
   
-  graphics.fill(color2);
+  //color2 = calcGradient(colorScheme[1], gradColor[1]);
+  graphics.stroke(strokeColor);
+  graphics.fill(color2, mandalaAlpha);
   //graphics.noFill();
     
   graphics.beginShape();

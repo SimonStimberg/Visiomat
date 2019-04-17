@@ -18,6 +18,9 @@ float lineSpread = 80.0;
 float patternSpread = 700.0;
 float dotSize = 10.0;
 
+float patternAlpha = 255.0;
+float mandalaAlpha = 1.0;
+
 
 // some basic variables
 
@@ -33,13 +36,20 @@ PGraphics graphics;                      // graphic buffer
 float tempo = 600.0;    // tempo to start with (in Milliseconds) - equals 100bpm    
 int[] tap = new int[0];
 
+//int[] colorScheme = {#f5100f, #ffcc00, #005066, #ffffff}; // ORIGINAL!
 //int[] colorScheme = {#ffa600, #9361ff, #000000, #ffffff};
 int[] colorScheme = {#f6a410, #e25612, #544193, #ffffff};
+//int[] colorScheme = {#fec404, #e30713, #544193, #ffffff};
+//int[] gradColor = {#393686, #ad87bd};
+int[] gradColor = {#393686, #5959a4};
+//int[] gradColor = {#2a377c, #50529f};
 int color1 = colorScheme[0];
 int color2 = colorScheme[1]; 
-int bgcolor = colorScheme[2];
+int bgcolor = gradColor[0];
+int tgtcolor = gradColor[1];
 int strokeColor = colorScheme[3];
 int strobeTime = 10;
+float lerpCounter = 0.0;
 
 
 // some toggles
@@ -63,7 +73,7 @@ boolean twist = false;
 
 boolean displayBuffer = false;
 boolean displayMIDI = false;
-boolean showFPS = true;
+boolean showFPS = false;
 
 
 
@@ -127,7 +137,7 @@ void draw()
   texture(graphics);
 
   // Center of the triangle fan
-  vertex(0, 0, 0.5, 1);
+  vertex(0, 0, 0.5, 0);
 
   // Draw the triangles around the center
   for (int i = 0; i < numFacets; i++)
@@ -143,8 +153,8 @@ void draw()
 
       if (i % 2 == 0)
       {
-          vertex(x1, y1, 0, 0);
-          vertex(x2, y2, 1, 0);
+          vertex(x1, y1, 0, 1);
+          vertex(x2, y2, 1, 1);
       }
       // every other facet the texture 
       // or better its uvs should be 
@@ -156,8 +166,8 @@ void draw()
       }
       else
       {
-          vertex(x1, y1, 1, 0);
-          vertex(x2, y2, 0, 0);
+          vertex(x1, y1, 1, 1);
+          vertex(x2, y2, 0, 1);
       }
   }
   endShape();
@@ -192,5 +202,5 @@ void draw()
     ellipse(width-50, height-50, 20, 20);
   }
   
-  
+  //println(timeCount);
 }
