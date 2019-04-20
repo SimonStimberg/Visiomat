@@ -18,8 +18,9 @@ float lineSpread = 80.0;
 float patternSpread = 700.0;
 float dotSize = 10.0;
 
-float patternAlpha = 255.0;
-float mandalaAlpha = 1.0;
+float starAlpha = 0.0;
+float dotAlpha = 0.0;
+float mandalaAlpha = 255.0;
 
 
 // some basic variables
@@ -55,10 +56,15 @@ float lerpCounter = 0.0;
 // some toggles
 
 boolean mandalaOn = true;
-boolean starsOn = false;
-boolean dotsOn = false;
+boolean starsOn = true;
+boolean dotsOn = true;
 boolean spiral = false;
 boolean strobeOn = false;
+
+boolean petalTrigger = false;
+int petalBeat = 0;
+float globalBeat;
+int globalBeatCount = 1;
 
 boolean record = false;
 
@@ -79,12 +85,12 @@ boolean showFPS = false;
 
 void setup() 
 {  
-  //fullScreen(P2D, 2);        // show in fullScreen - with a SECOND PARAMETER a screen can be addressed. has to be set if there are multiple screens to choose from
-  size(1280, 720, P2D);
+  fullScreen(P2D, 2);        // show in fullScreen - with a SECOND PARAMETER a screen can be addressed. has to be set if there are multiple screens to choose from
+  //size(1280, 720, P2D);
   //frameRate(25);
     
   
-  myBus = new MidiBus(this, 2, 0);    // sets the MIDI in/out device - the second parameter is the input. choose the right device from the list
+  myBus = new MidiBus(this, 2, 3);    // sets the MIDI in/out device - the second parameter is the input. choose the right device from the list
   MidiBus.list();    // logs all available MIDI ins/outs
  
  
@@ -94,25 +100,31 @@ void setup()
   textureMode(NORMAL);
   radius = sqrt(sq(width/2)+sq(height/2))*1.01;   // +1% to be sure it overlaps the screen entirely ;)
 
-  vertices = (float[][])append(vertices, new float[]{0, 0,  50, 5, bufferWidth, 10} );    // add a first vertex to the array
+  //vertices = (float[][])append(vertices, new float[]{0, 0,  50, 5, bufferWidth, 10} );    // add a first vertex to the array
   
   dirt = new Movie(this, "filmgrain.mov");    // a video-file with film grain and dirt - to emulate an analogue texture and add grit/character to the graphics 
   dirt.loop();
   
   // create graphic buffer
   graphics = createGraphics(bufferWidth, bufferHeight);
+  globalBeat = millis();
+  
+  
+  padColor(false);
+  //thread("metronome");
 }
 
 
 
 void draw() 
 {
+  globalBeat();
   background(0);
   noStroke();
   
   
   // calls the modules/functions
-  randomGenerator();
+  //randomGenerator();
   graphicBuffer();
   switchColorsOnBeat();
   zoomIn();
@@ -203,4 +215,29 @@ void draw()
   }
   
   //println(timeCount);
+}
+
+
+void metronome()
+{
+    globalBeat = globalBeat + tempo;
+    if(globalBeatCount == 4) { globalBeatCount = 0; }
+    globalBeatCount++;
+      println("Beat " + globalBeatCount);
+    int cntrl = (globalBeatCount==1) ? 3 : 1;
+    cntrl = (globalBeatCount==3) ? 5 : cntrl;
+    myBus.sendNoteOn(0, 23, cntrl);  
+
+    petalCreator();
+  //int current = millis();
+  //println("now: " + current);
+  while (millis () < globalBeat) Thread.yield();
+  metronome();
+}
+
+
+void exit()
+{
+  padColor(true);
+  super.exit();
 }

@@ -9,41 +9,47 @@ void noteOn(int channel, int pitch, int velocity) {
   if(pitch==32)
   {
     numFacets=24;
+
+    padColor(false);
   }
   if(pitch==33)
   {
     numFacets=18;
+    
+    padColor(false);
   }
   if(pitch==34)
   {
     numFacets=48;
+    
+    padColor(false);
   }
   
   // un-mirror facets for "spiral-effect"
-  if(pitch==35)
-  {
-    spiral = !spiral;
-  }
+  //if(pitch==35)
+  //{
+  //  spiral = !spiral;
+  //}
 
   
   
   // toggle forms on/off  
-  if(pitch==37)
-  {
-    mandalaOn = !mandalaOn;
-  }
-  if(pitch==38)
-  {
-    dotsOn = !dotsOn;
-  }
-  if(pitch==39)
-  {
-    starsOn = !starsOn;
-    //if(starsOn)
-    //{
-    //  numFacets=48;   // switch to more facets to make the lines appear more round
-    //}
-  }
+  //if(pitch==37)
+  //{
+  //  mandalaOn = !mandalaOn;
+  //}
+  //if(pitch==38)
+  //{
+  //  dotsOn = !dotsOn;
+  //}
+  //if(pitch==39)
+  //{
+  //  starsOn = !starsOn;
+  //  //if(starsOn)
+  //  //{
+  //  //  numFacets=48;   // switch to more facets to make the lines appear more round
+  //  //}
+  //}
 
   // toggle background color
   if(pitch==30)
@@ -64,6 +70,7 @@ void noteOn(int channel, int pitch, int velocity) {
   {    
     colorBeatTrigger = millis() + tempo - tempo/8; // substract a 8th to compensate the controller latency (~65ms)
     colorBeat = !colorBeat;    
+    padColor(false);
     
     if(colorBeat)
     {
@@ -77,7 +84,7 @@ void noteOn(int channel, int pitch, int velocity) {
   {
     zoomTrigger = millis() + tempo*2 - tempo/8; // substract a 8th to compensate the controller latency (~65ms)
     zoom = !zoom;
-    
+    padColor(false);    
   }
   
   
@@ -86,20 +93,39 @@ void noteOn(int channel, int pitch, int velocity) {
   {
     twistTrigger = millis() + tempo*2 - tempo/8; // substract a 8th to compensate the controller latency (~65ms)
     twist = !twist;    
+    padColor(false);
   }
   
   
   // switch color once
-  if(pitch==6)
-  {
-    switchColorsOnce();
-  }
+  //if(pitch==6)
+  //{
+  //  switchColorsOnce();
+  //}
   
   
   // strobe effect (
   if(pitch==7)
   {
     strobeOn = !strobeOn;
+    padColor(false);
+  }
+  
+
+  if(pitch==37)
+  {
+    petalBeat = (petalBeat != 1) ? 1 : 0;
+    padColor(false);
+  }
+  if(pitch==38)
+  {
+    petalBeat = (petalBeat != 2) ? 2 : 0;
+    padColor(false);
+  }
+  if(pitch==39)
+  {
+    petalBeat = (petalBeat != 4) ? 4 : 0;
+    padColor(false);
   }
 
   
@@ -121,6 +147,18 @@ void noteOn(int channel, int pitch, int velocity) {
     tapTempo();
   }
   
+  if(pitch==91)
+  {
+    globalBeat = millis() + tempo - tempo/8; // substract a 8th to compensate the controller latency (~65ms)
+    globalBeatCount = 1;
+    petalCreator();
+  }
+  
+  if(pitch==93)
+  {
+    //petalTrigger = true;
+    randomGenerator();
+  }
   
 
 
@@ -169,18 +207,23 @@ void controllerChange(int channel, int number, int value) {
   
   if(number==53)
   {
-    patternAlpha = map(value, 0, 127, 0., 255.);    // amount how much the lines being tilted (resulting in star pattern) 
+    starAlpha = map(value, 0, 127, 0., 255.);    // amount how much the lines being tilted (resulting in star pattern) 
+  }
+  
+  if(number==54)
+  {
+    dotAlpha = map(value, 0, 127, 0., 255.);    // amount how much the lines being tilted (resulting in star pattern) 
   }
 
-  if(number==54)
+  if(number==55)
   {
     patternSpread = map(value, 0, 127, 150.0+bufferHeight , -100.);  // distribution of the dots and stars over the screen
   }
   
-  if(number==55)
-  {
-    dotSize = map(value, 0, 127, 7., 15.);    // dot size
-  }
+  //if(number==55)
+  //{
+  //  dotSize = map(value, 0, 127, 7., 15.);    // dot size
+  //}
   
 
     

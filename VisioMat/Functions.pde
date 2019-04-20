@@ -68,6 +68,38 @@ void tapTempo()
   }
 }
 
+void globalBeat()
+{
+  //myBus.sendNoteOn(0, 16, 0);
+  if(millis() >= globalBeat)
+  {    
+    globalBeat = globalBeat + tempo;
+    if(globalBeatCount == 4) { globalBeatCount = 0; }
+    globalBeatCount++;
+      //println("Beat " + globalBeatCount);
+    int cntrl = (globalBeatCount==1) ? 3 : 1;
+    cntrl = (globalBeatCount==3) ? 5 : cntrl;
+    myBus.sendNoteOn(0, 23, cntrl);  
+
+    petalCreator();
+  }
+   
+  
+}
+
+
+void petalCreator()
+{
+        
+  if( (petalBeat != 0) && ((globalBeatCount+3) % petalBeat == 0) )
+  {
+    randomGenerator();  
+    //println("jetze");
+  }
+  //randomGenerator();
+
+}
+
 
 
 // zooms in with an ease in/out - results in a "breathing effect"
@@ -123,4 +155,49 @@ void twistIn()
   {
     rotationFactor = lerp(rotationFactor, rotationControl, 0.2);
   }
+}
+
+
+void padColor(boolean kill)
+{
+  
+  if(!kill)
+  {
+    int cntrl;
+      
+    // facet controls
+    cntrl = (numFacets==24) ? 3 : 1;
+    myBus.sendNoteOn(0, 32, cntrl);
+    cntrl = (numFacets==18) ? 3 : 1;
+    myBus.sendNoteOn(0, 33, cntrl);
+    cntrl = (numFacets==48) ? 3 : 1;
+    myBus.sendNoteOn(0, 34, cntrl);
+    
+    cntrl = (petalBeat==1) ? 3 : 1;
+    myBus.sendNoteOn(0, 37, cntrl);
+    cntrl = (petalBeat==2) ? 3 : 1;
+    myBus.sendNoteOn(0, 38, cntrl);
+    cntrl = (petalBeat==4) ? 3 : 1;
+    myBus.sendNoteOn(0, 39, cntrl);
+    
+    // beat effects
+    cntrl = (colorBeat) ? 3 : 1;
+    myBus.sendNoteOn(0, 0, cntrl);  
+    cntrl = (zoom) ? 3 : 1;
+    myBus.sendNoteOn(0, 1, cntrl);
+    cntrl = (twist) ? 3 : 1;
+    myBus.sendNoteOn(0, 2, cntrl);  
+    
+    // strobe
+    cntrl = (strobeOn) ? 3 : 1;
+    myBus.sendNoteOn(0, 7, cntrl);
+  }
+  else
+  {
+    for(int i=0; i<=39; i++)
+    {
+      myBus.sendNoteOn(0, i, 0);      
+    }
+  }
+
 }

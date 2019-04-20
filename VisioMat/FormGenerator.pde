@@ -8,7 +8,7 @@ void graphicBuffer()
   graphics.stroke(strokeColor);
 
   
-  graphics.translate(0, shift-100);  // push the forms down the y axis
+  graphics.translate(0, shift+100);  // push the forms down the y axis
       
   
   // adds the visual elements if activated
@@ -68,7 +68,7 @@ int calcGradient(int c1, int c2)
 // generates some lines - which if shifted result in nice star patterns
 void stars()
 {
-  graphics.stroke(strokeColor, patternAlpha);
+  graphics.stroke(strokeColor, starAlpha);
   // iterates over the height of the graphic buffer and draws some lines now and then
   // the thickness of the lines and distribution can be controlled via the parameters patternSpread and lineSpread
   for (float i = -bufferHeight; i < shift-patternSpread; i+=lineSpread)
@@ -91,7 +91,7 @@ void dots()
   
   //graphics.strokeWeight(0);
   graphics.noStroke();
-  graphics.fill(strokeColor, patternAlpha);
+  graphics.fill(strokeColor, dotAlpha);
   
   for (float i = -bufferHeight; i < shift-patternSpread; i+=20)
   {
@@ -114,22 +114,34 @@ void dots()
 // generates some random numbers for the vertices to be drawn
 void randomGenerator()
 {
-  if (timeCount == 0)
-  {
-    if (vertices[vertices.length-1][4] == 0) // seeds a vertex alternately on the left and right side of the graphic buffer
-    {
+  //if (timeCount == 0)
+  //if (petalTrigger)
+  //{
+    float peak = -(shift+random(bufferWidth));
+
       // creates six values which are needed to draw a bezier curve (x1, y1, x2, y2, x3, y3)
-      vertices = (float[][])append(vertices, new float[]{0, -100-shift,  random(bufferWidth), -100-(shift+random(bufferWidth)), bufferWidth, -100-(shift+random(bufferWidth))} );
-    }
-    else if (vertices[vertices.length-1][4] == bufferWidth)
-    {
-      vertices = (float[][])append(vertices, new float[]{bufferWidth, -100-shift,  random(bufferWidth), -100-(shift+random(bufferWidth)), 0, -100-(shift+random(bufferWidth))} );
-    }
+      vertices = (float[][])append(vertices, new float[]{0, -shift,  random(bufferWidth), -(shift+random(bufferWidth)), bufferWidth, peak} );
+
+      vertices = (float[][])append(vertices, new float[]{bufferWidth, peak,  random(bufferWidth), peak-random(bufferWidth), 0, peak-random(bufferWidth)} );
+      
+      
+
+    
+    //if (vertices[vertices.length-1][4] == 0) // seeds a vertex alternately on the left and right side of the graphic buffer
+    //{
+    //  // creates six values which are needed to draw a bezier curve (x1, y1, x2, y2, x3, y3)
+    //  vertices = (float[][])append(vertices, new float[]{0, -100-shift,  random(bufferWidth), -100-(shift+random(bufferWidth)), bufferWidth, -100-(shift+random(bufferWidth))} );
+    //}
+    //else if (vertices[vertices.length-1][4] == bufferWidth)
+    //{
+    //  vertices = (float[][])append(vertices, new float[]{bufferWidth, -100-shift,  random(bufferWidth), -100-(shift+random(bufferWidth)), 0, -100-(shift+random(bufferWidth))} );
+    //}
    
     // wait a random amount of time before drawing the next object
-    timeCount = int(random(bufferWidth*0.25/shiftFactor, bufferWidth/shiftFactor));
-  }
-  timeCount--;
+  //  timeCount = 200+int(random(bufferWidth*0.25/shiftFactor, bufferWidth/shiftFactor));
+  //  petalTrigger = false;
+  //}
+  //timeCount--;
 }
 
 
@@ -139,6 +151,9 @@ void mandala()
   graphics.strokeWeight(12);
   
   graphics.stroke(strokeColor, mandalaAlpha);
+  
+  
+  
   // draws some ellipses first
   
   //color1 = calcGradient(colorScheme[0], colorScheme[1]);
@@ -163,17 +178,21 @@ void mandala()
   graphics.fill(color2, mandalaAlpha);
   //graphics.noFill();
     
-  graphics.beginShape();
-  graphics.vertex(0, 0);
+  //graphics.beginShape();
+  //graphics.vertex(0, 0);
   
-  for (int i = 0; i < vertices.length; i++)
+  for (int i = 0; i < vertices.length; i+=2)
   {
     if(vertices[i][1] <= -shift+15000)
-    {    
+    {      
+      graphics.beginShape();
+      graphics.vertex(vertices[i][0], vertices[i][1]);
       graphics.bezierVertex(vertices[i][0], vertices[i][1],  vertices[i][2], vertices[i][3],  vertices[i][4], vertices[i][5]);
+      graphics.bezierVertex(vertices[i+1][0], vertices[i+1][1],  vertices[i+1][2], vertices[i+1][3],  vertices[i+1][4], vertices[i+1][5]);
+      graphics.endShape();  
     }
   }
   
-  graphics.vertex(0, vertices[vertices.length-1][5]);
-  graphics.endShape();  
+  //graphics.vertex(0, vertices[vertices.length-1][5]);
+  //graphics.endShape();  
 }
