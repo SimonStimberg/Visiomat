@@ -2,9 +2,20 @@
 
 import themidibus.*; 
 import processing.video.*;
+import processing.sound.*;
 
 MidiBus myBus;
 Movie dirt;
+AudioIn soundIn;
+FFT fft;
+Amplitude loudness;
+
+int bands = 16;
+float[] spectrum = new float[bands];
+float sum;
+float volume;
+
+
 
 
 // start values for the control parameters
@@ -42,12 +53,22 @@ int[] tap = new int[0];
 int[] colorScheme = {#f6a410, #e25612, #544193, #ffffff};
 //int[] colorScheme = {#fec404, #e30713, #544193, #ffffff};
 //int[] gradColor = {#393686, #ad87bd};
-int[] gradColor = {#393686, #5959a4};
+//int[] gradColor = {#393686, #5959a4};
+int[] gradColor = {#393686, #ba96c6, #f7e700, #e5240d, #9a1480, #9d0784};
 //int[] gradColor = {#2a377c, #50529f};
-int color1 = colorScheme[0];
-int color2 = colorScheme[1]; 
+
+
+int[] colorStore = new int[3];
+int colorIndex = 0;
+//int gradColor2 = gradColor[2];
+//int gradColor3 = gradColor[3];
+
 int bgcolor = gradColor[0];
-int tgtcolor = gradColor[1];
+int color1 = gradColor[2];
+int color2 = gradColor[3]; 
+
+
+
 int strokeColor = colorScheme[3];
 int strobeTime = 10;
 float lerpCounter = 0.0;
@@ -94,6 +115,19 @@ void setup()
   MidiBus.list();    // logs all available MIDI ins/outs
  
  
+  // Sound.list();   // logs available Sound Devices
+  Sound s = new Sound(this);
+  s.inputDevice(1);  // pick the right device
+  soundIn = new AudioIn(this, 0);  // Create an Audio input and grab the 1st channel 
+  soundIn.start();  // Begin capturing the audio input 
+  // Create the FFT analyzer and connect the input to it.
+  fft = new FFT(this, bands);
+  fft.input(soundIn);
+  
+  loudness = new Amplitude(this);
+  loudness.input(soundIn);
+ 
+ 
   rotation = 0;
   shift = 0;
   
@@ -122,14 +156,45 @@ void draw()
   background(0);
   noStroke();
   
+  float smoothingFactor = 0.05; 
+  volume += (loudness.analyze()-volume) * smoothingFactor;
+  
+  //fft.analyze();
+  //float middle = 0.0;
+  //for (int i = 2; i < bands; i++) {
+  //  middle += fft.spectrum[i];
+  //}
+  //middle = middle / (bands-2);
+
+  //// Smooth the FFT spectrum data by smoothing factor
+  //sum += (middle - sum) * smoothingFactor;
+  
+
+  colorStore[0] = fftColor(gradColor[0], gradColor[1], 2);
+  colorStore[1] = fftColor(gradColor[2], gradColor[3], 2);
+  colorStore[2] = fftColor(gradColor[3], gradColor[4], 2);
+  
+  bgcolor = colorStore[colorIndex];
+  color1 = (colorIndex==2) ? colorStore[0] : colorStore[colorIndex+1];
+  color2 = (colorIndex==0) ? colorStore[2] : colorStore[colorIndex-1];
+  
+  
+  
+  //fft.analyze();
+  //for (int i = 0; i < bands; i++) {
+  //  // Smooth the FFT spectrum data by smoothing factor
+  //  spectrum[i] += (fft.spectrum[i] - spectrum[i]) * smoothingFactor;
+  //}
   
   // calls the modules/functions
   //randomGenerator();
-  graphicBuffer();
+
   switchColorsOnBeat();
   zoomIn();
   twistIn();
   strobe();
+  
+  graphicBuffer();
   
   
   push();

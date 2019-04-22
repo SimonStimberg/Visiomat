@@ -2,7 +2,8 @@ void graphicBuffer()
 { 
   graphics.beginDraw();
   
-  bgcolor = calcGradient(gradColor[0], gradColor[1]);
+  //bgcolor = calcGradient(gradColor[0], gradColor[1]);
+  //bgcolor = fftColor(gradColor[0], gradColor[1], 2);
   
   graphics.background(bgcolor);
   graphics.stroke(strokeColor);
@@ -32,7 +33,7 @@ void graphicBuffer()
   if (dirt.available()) {
     dirt.read();
   }    
-  graphics.blend(dirt, 0, 0, 250, 1000, 0, 0, bufferWidth, bufferHeight, HARD_LIGHT);
+  graphics.blend(dirt, 0, 0, 250, 1000, 0, 0, bufferWidth, bufferHeight, OVERLAY);
   
   graphics.endDraw();   
 }
@@ -71,14 +72,23 @@ void stars()
   graphics.stroke(strokeColor, starAlpha);
   // iterates over the height of the graphic buffer and draws some lines now and then
   // the thickness of the lines and distribution can be controlled via the parameters patternSpread and lineSpread
-  for (float i = -bufferHeight; i < shift-patternSpread; i+=lineSpread)
+  for (float i = -bufferHeight; i < shift+300; i+=lineSpread)
   { 
-    if(i >= shift-bufferHeight-150)  // only draw those that are actually to be seen on the screen (to save performance)
+    if(i >= shift-bufferHeight-150+patternSpread)  // only draw those that are actually to be seen on the screen (to save performance)
     {
       graphics.strokeWeight(lineSpread/3);
       graphics.line(0, -i+1*starFactor,  bufferWidth, -i);
     }
   }
+  
+  //  for (float i = -shift-100; i < -shift+bufferHeight-patternSpread; i+=lineSpread)
+  //{ 
+  //  //if(i >= shift-bufferHeight-150)  // only draw those that are actually to be seen on the screen (to save performance)
+  //  //{
+  //    graphics.strokeWeight(lineSpread/3);
+  //    graphics.line(0, i+1*starFactor,  bufferWidth, i);
+  //  //}
+  //}
 }
 
 
@@ -93,9 +103,9 @@ void dots()
   graphics.noStroke();
   graphics.fill(strokeColor, dotAlpha);
   
-  for (float i = -bufferHeight; i < shift-patternSpread; i+=20)
+  for (float i = -bufferHeight; i < shift+300; i+=20)
   {
-    if(i >= shift-bufferHeight-150)
+    if(i >= shift-bufferHeight-150+patternSpread)
     {
       for (float j = 0; j <= graphics.width/2; j+=15*antiDistort)
       {
@@ -157,6 +167,7 @@ void mandala()
   // draws some ellipses first
   
   //color1 = calcGradient(colorScheme[0], colorScheme[1]);
+  //color1 = fftColor(gradColor[3], gradColor[4], 2);
   
   graphics.fill(color1, mandalaAlpha);
   //graphics.noFill();
@@ -174,6 +185,8 @@ void mandala()
   // then draws bezier curves in a different color - which results in those nice sunflower patterns
   
   //color2 = calcGradient(colorScheme[1], gradColor[1]);
+  //color2 = fftColor(gradColor[2], gradColor[3], 3);
+  
   graphics.stroke(strokeColor);
   graphics.fill(color2, mandalaAlpha);
   //graphics.noFill();

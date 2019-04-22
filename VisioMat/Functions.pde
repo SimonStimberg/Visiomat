@@ -6,9 +6,10 @@ void strobe()
   {
     if(strobeTime == 0)
     {
-      int store = color1;
-      color1 = color2;
-      color2 = store;
+      //int store = color1;
+      //color1 = color2;
+      //color2 = store;
+      switchColorsOnce();
       strobeTime = 5;
     }
     strobeTime--;
@@ -21,9 +22,11 @@ void strobe()
 
 void switchColorsOnce()
 {
-  int store = color1;
-  color1 = color2;
-  color2 = store;
+  //int store = color1;
+  //color1 = color2;
+  //color2 = store;
+  colorIndex = (colorIndex==2) ? 0 : colorIndex+1;
+  
   //color2 = bgcolor;
   //bgcolor = store;
 }
@@ -155,6 +158,16 @@ void twistIn()
   {
     rotationFactor = lerp(rotationFactor, rotationControl, 0.2);
   }
+}
+
+
+int fftColor(int c1, int c2, int band)
+{
+  float scaledFFT = sum * 50.0;
+  //println("fft-value for band " + band + " is: " + scaledFFT);
+  //println("sum: " + scaledFFT);
+  return lerpColor(c1, c2, volume);
+
 }
 
 

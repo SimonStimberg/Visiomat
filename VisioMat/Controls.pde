@@ -98,10 +98,10 @@ void noteOn(int channel, int pitch, int velocity) {
   
   
   // switch color once
-  //if(pitch==6)
-  //{
-  //  switchColorsOnce();
-  //}
+  if(pitch==6)
+  {
+    switchColorsOnce();
+  }
   
   
   // strobe effect (
@@ -217,7 +217,7 @@ void controllerChange(int channel, int number, int value) {
 
   if(number==55)
   {
-    patternSpread = map(value, 0, 127, 150.0+bufferHeight , -100.);  // distribution of the dots and stars over the screen
+    patternSpread = map(value, 0, 127, 400.0+bufferHeight , 250.);  // distribution of the dots and stars over the screen
   }
   
   //if(number==55)
