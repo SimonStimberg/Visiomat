@@ -6,6 +6,9 @@ import processing.sound.*;
 
 MidiBus myBus;
 Movie dirt;
+
+
+
 AudioIn soundIn;
 FFT fft;
 Amplitude loudness;
@@ -45,29 +48,31 @@ float radius, rotation, shift;
 float[][] vertices = new float[0][0];    // array that will contain the random generated vertex positions
 PGraphics graphics;                      // graphic buffer
 
-float tempo = 600.0;    // tempo to start with (in Milliseconds) - equals 100bpm    
+float tempo = 600.0;    // tempo to start with (in Milliseconds) - equals 100bpm
+float newTempo;
 int[] tap = new int[0];
+
+
+
+// COLOR SECTION
 
 //int[] colorScheme = {#f5100f, #ffcc00, #005066, #ffffff}; // ORIGINAL!
 //int[] colorScheme = {#ffa600, #9361ff, #000000, #ffffff};
-int[] colorScheme = {#f6a410, #e25612, #544193, #ffffff};
 //int[] colorScheme = {#fec404, #e30713, #544193, #ffffff};
+int[] colorScheme = {#f6a410, #e25612, #544193, #ffffff};
 //int[] gradColor = {#393686, #ad87bd};
 //int[] gradColor = {#393686, #5959a4};
-int[] gradColor = {#393686, #ba96c6, #f7e700, #e5240d, #9a1480, #9d0784};
 //int[] gradColor = {#2a377c, #50529f};
+//int[] gradColor = {#393686, #ba96c6, #f7e700, #e5240d, #9a1480, #9d0784};
+int[] gradColor = {#6044a2, #008391, #ffcc00, #fdb71f, #f5100f, #7a42a3};
 
 
 int[] colorStore = new int[3];
 int colorIndex = 0;
-//int gradColor2 = gradColor[2];
-//int gradColor3 = gradColor[3];
 
 int bgcolor = gradColor[0];
 int color1 = gradColor[2];
 int color2 = gradColor[3]; 
-
-
 
 int strokeColor = colorScheme[3];
 int strobeTime = 10;
@@ -98,6 +103,11 @@ boolean zoom = false;
 float twistTrigger;
 boolean twist = false;
 
+boolean fadeTrigger = false;
+float fadeTarget = 255.0;
+float fadeAlpha = fadeTarget;
+
+
 boolean displayBuffer = false;
 boolean displayMIDI = false;
 boolean showFPS = false;
@@ -115,17 +125,20 @@ void setup()
   MidiBus.list();    // logs all available MIDI ins/outs
  
  
-  // Sound.list();   // logs available Sound Devices
-  Sound s = new Sound(this);
-  s.inputDevice(1);  // pick the right device
-  soundIn = new AudioIn(this, 0);  // Create an Audio input and grab the 1st channel 
-  soundIn.start();  // Begin capturing the audio input 
-  // Create the FFT analyzer and connect the input to it.
-  fft = new FFT(this, bands);
-  fft.input(soundIn);
+  // SOUND-SECTION deactivate if not in use
+
+  //// Sound.list();   // logs available Sound Devices
+  //Sound s = new Sound(this);
+  //s.inputDevice(1);  // pick the right device
+  //soundIn = new AudioIn(this, 0);  // Create an Audio input and grab the 1st channel 
+  //soundIn.start();  // Begin capturing the audio input 
+  //// Create the FFT analyzer and connect the input to it.
+  //fft = new FFT(this, bands);
+  //fft.input(soundIn);
   
-  loudness = new Amplitude(this);
-  loudness.input(soundIn);
+  //loudness = new Amplitude(this);
+  //loudness.input(soundIn);
+ 
  
  
   rotation = 0;
@@ -156,9 +169,14 @@ void draw()
   background(0);
   noStroke();
   
-  float smoothingFactor = 0.05; 
-  volume += (loudness.analyze()-volume) * smoothingFactor;
   
+  // SOUND-SECTION
+  
+  // Amplitude dependence
+  //float smoothingFactor = 0.05; 
+  //volume += (loudness.analyze()-volume) * smoothingFactor;
+  
+  // FFT dependence
   //fft.analyze();
   //float middle = 0.0;
   //for (int i = 2; i < bands; i++) {
@@ -169,10 +187,17 @@ void draw()
   //// Smooth the FFT spectrum data by smoothing factor
   //sum += (middle - sum) * smoothingFactor;
   
+  //fft.analyze();
+  //for (int i = 0; i < bands; i++) {
+  //  // Smooth the FFT spectrum data by smoothing factor
+  //  spectrum[i] += (fft.spectrum[i] - spectrum[i]) * smoothingFactor;
+  //}
+  
+  
 
-  colorStore[0] = fftColor(gradColor[0], gradColor[1], 2);
-  colorStore[1] = fftColor(gradColor[2], gradColor[3], 2);
-  colorStore[2] = fftColor(gradColor[3], gradColor[4], 2);
+  colorStore[0] = calcGradient(gradColor[0], gradColor[1]);
+  colorStore[1] = calcGradient(gradColor[2], gradColor[3]);
+  colorStore[2] = calcGradient(gradColor[4], gradColor[5]);
   
   bgcolor = colorStore[colorIndex];
   color1 = (colorIndex==2) ? colorStore[0] : colorStore[colorIndex+1];
@@ -180,14 +205,9 @@ void draw()
   
   
   
-  //fft.analyze();
-  //for (int i = 0; i < bands; i++) {
-  //  // Smooth the FFT spectrum data by smoothing factor
-  //  spectrum[i] += (fft.spectrum[i] - spectrum[i]) * smoothingFactor;
-  //}
+
   
   // calls the modules/functions
-  //randomGenerator();
 
   switchColorsOnBeat();
   zoomIn();
@@ -260,6 +280,23 @@ void draw()
     image(graphics, 0, 0);
   }
   
+  
+
+  
+  // fade to/from black
+  if(fadeTrigger)
+  {
+    fadeAlpha = lerp(fadeAlpha, fadeTarget, 0.05);
+    if(fadeAlpha > 254.99 || fadeAlpha < 0.01) { fadeTrigger = false; }     
+  }
+  
+  fill(0, fadeAlpha);
+  rect(0, 0, width, height);
+  //println(fadeTrigger);
+    
+  
+  
+  
   // logs framerate
   if(showFPS)
   {
@@ -272,12 +309,12 @@ void draw()
   // shifts the graphic buffer constantly down the y-axis - creates the inward drag in the visuals
   shift = shift+shiftFactor;
   
-  if(record)
-  {
-    saveFrame("output/grab_####");
-    fill(0);
-    ellipse(width-50, height-50, 20, 20);
-  }
+  //if(record)
+  //{
+  //  saveFrame("output/grab_####");
+  //  fill(0);
+  //  ellipse(width-50, height-50, 20, 20);
+  //}
   
   //println(timeCount);
 }

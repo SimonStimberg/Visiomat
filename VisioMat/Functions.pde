@@ -59,15 +59,15 @@ void tapTempo()
   {
     
     // calculate average time interval
-    tempo = 0.0;
+    newTempo = 0.0;
     for(int i=1; i<tap.length; i++)
     {
-      tempo += tap[i]-tap[i-1];      
+      newTempo += tap[i]-tap[i-1];      
     }
-    tempo = tempo / (tap.length - 1);
+    newTempo = newTempo / (tap.length - 1);
     
-    float bpm = round(600000 / tempo) * 0.1;
-    println("Tempo: " + bpm + " bpm / " + tempo + " ms");
+    float bpm = round(600000 / newTempo) * 0.1;
+    println("Tempo: " + bpm + " bpm / " + newTempo + " ms");
   }
 }
 
@@ -204,6 +204,11 @@ void padColor(boolean kill)
     // strobe
     cntrl = (strobeOn) ? 3 : 1;
     myBus.sendNoteOn(0, 7, cntrl);
+    
+    // change colors once
+    myBus.sendNoteOn(0, 24, 5);
+    // fader button
+    myBus.sendNoteOn(0, 5, 5);
   }
   else
   {

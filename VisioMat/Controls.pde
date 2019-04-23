@@ -52,15 +52,15 @@ void noteOn(int channel, int pitch, int velocity) {
   //}
 
   // toggle background color
-  if(pitch==30)
-  {
-    bgcolor = colorScheme[0];
-  }
+  //if(pitch==30)
+  //{
+  //  bgcolor = colorScheme[0];
+  //}
   
-  if(pitch==31)
-  {
-    bgcolor = colorScheme[2];
-  }
+  //if(pitch==31)
+  //{
+  //  bgcolor = colorScheme[2];
+  //}
   
  
   
@@ -98,7 +98,7 @@ void noteOn(int channel, int pitch, int velocity) {
   
   
   // switch color once
-  if(pitch==6)
+  if(pitch==24)
   {
     switchColorsOnce();
   }
@@ -110,8 +110,17 @@ void noteOn(int channel, int pitch, int velocity) {
     strobeOn = !strobeOn;
     padColor(false);
   }
-  
 
+  
+  // fade to/from black
+  if(pitch==5)
+  {
+    fadeTrigger = true;  
+    fadeTarget = (fadeTarget == 255.0) ? 0.0 : 255.0;
+  }
+
+  
+  // spawn new mandala/petals on every beat (or on 1+3 or only on 1)
   if(pitch==37)
   {
     petalBeat = (petalBeat != 1) ? 1 : 0;
@@ -149,6 +158,7 @@ void noteOn(int channel, int pitch, int velocity) {
   
   if(pitch==91)
   {
+    tempo = newTempo;
     globalBeat = millis() + tempo - tempo/8; // substract a 8th to compensate the controller latency (~65ms)
     globalBeatCount = 1;
     petalCreator();

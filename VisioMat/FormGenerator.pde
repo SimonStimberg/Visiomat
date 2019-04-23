@@ -54,7 +54,7 @@ int calcGradient(int c1, int c2)
     lerpCounter = -1.0;
   }
   
-  lerpCounter += 0.01;
+  lerpCounter += 0.001;
   return lerpColor(c1, c2, abs(lerpCounter));
   //println(c);
   //println("c1: " + gradColor[1]);
